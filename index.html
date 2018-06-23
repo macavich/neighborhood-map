@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Neighborhood Map</title>
+    <link rel="stylesheet" href="css/styles.css">
+  </head>
+  <body>
+    <div class="options-box">
+      <h1>Learn about your Neighborhood</h1>
+      <hr>
+      <div>
+        <input id="zoom-to-area-text" type="text" placeholder="Where do you want to learn about?!">
+        <input id="zoom-to-area-number-of-items" type="text" placeholder="How many items do you want to see?">
+        <input id="zoom-to-area" type="button" value="Zoom">
+      </div>
+    </div>
+    <div id="map"></div>
+    <script src="js/app.js"></script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyDBX-kr5Ov43IVNnFGiSb_tkbUmcytq7Mc&v=3&callback=initMap">
+    </script>
+  </body>
+</html>
