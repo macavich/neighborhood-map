@@ -1,16 +1,214 @@
 var map;
 // Create a new blank array for all the listing markers.
 var markers = [];
+var yelpAccessToken = "ma8Io2GDolGxcOxuBju5pfrMfrrS7SUJ1JaKC70_EexNP8EHcYoEdWUGrdcM_LUkdPnBFg4Xv2pcK3RIyNE9toXsQhHOVZLgLc_rzJqj1EtImeybGbrEo69FH34xW3Yx";
+var foursquareClientID = "K5DB4HO5HMKVQGHMSURD54VGCDZZNYXIJYXE1WRHJ53H12BX";
+var foursquareClientSecret = "BSFJKIIPID5IKQLNIQPRZAHLGDS54NLJXHMUGN0FCQCBH1GC";
+var initialPlaces = [
+  {
+    name: "Pizza Union",
+    formatted_address: "246-250 Pentonville Rd. London N1 93Y, UK",
+    geometry: {
+      location: {
+        lat: 51.5311021,
+        lng: -0.1198515
+      }
+    },
+    formatted_phone_number: "+442072789425",
+    opening_hours: {
+      weekday_text: [
+        "Monday: 11:00AM - 12:00AM",
+        "Tuesday: 11:00AM - 12:00AM",
+        "Wednesday: 11:00AM - 12:00AM",
+        "Thursday: 11:00AM - 12:00AM",
+        "Friday: 11:00AM - 12:00AM",
+        "Saturday: 11:00AM - 12:00AM",
+        "Sunday: 11:00AM - 12:00AM"
+      ]
+    },
+    place_id: "ChIJBS8tKT8bdkgRlUzYr3nKauU",
+    foursquare_id: "5570465a498eb53da6d0e9d4",
+    website: "http://www.pizzaunion.com/"
+  },
+  {
+    name: "Pizza Hut",
+    formatted_address: "56-59 Strand, London WC2N 5LR, UK",
+    geometry: {
+      location: {
+        lat: 51.509431,
+        lng: -0.12342
+      }
+    },
+    formatted_phone_number: "+442079250050",
+    opening_hours: {
+      weekday_text: [
+        "Monday: 11:00AM - 11:00AM",
+        "Tuesday: 11:00AM - 11:00AM",
+        "Wednesday: 11:00AM - 11:00AM",
+        "Thursday: 11:00AM - 11:00AM",
+        "Friday: 11:00AM - 12:00AM",
+        "Saturday: 11:00AM - 12:00AM",
+        "Sunday: 11:00AM - 11:00AM"
+      ]
+    },
+    place_id: "ChIJ774OZskEdkgRS97njpnw2as",
+    foursquare_id: "4bc6005242419521ca66031d",
+    website: "http://www.pizzahut.co.uk/restaurants/find-a-hut/london/strand/?utm_source=google&utm_medium=maps&utm_content=strand&utm_campaign=googleplaces"
+  },
+  {
+    name: "Homeslice Neal's Yard",
+    formatted_address: "13 Neal's Yard, London WC2H 9DR UK",
+    geometry: {
+      location: {
+        lat: 51.514569,
+        lng: -0.1264329
+      }
+    },
+    formatted_phone_number: "+442031517488",
+    opening_hours: {
+      weekday_text: [
+        "Monday: 12:00AM - 11:00PM",
+        "Tuesday: 12:00AM - 11:00PM",
+        "Wednesday: 12:00AM - 11:00PM",
+        "Thursday: 12:00AM - 11:00PM",
+        "Friday: 12:00AM - 11:00PM",
+        "Saturday: 12:00AM - 11:00PM",
+        "Sunday: 12:00AM - 11:00PM"
+      ]
+    },
+    place_id: "ChIJaxCVKc0EdkgRDrP4g1uRznI",
+    foursquare_id: "5188ddc2498efdc2be39f972",
+    website: "http://www.homeslicepizza.co.uk/"
+  },
+  {
+    name: "Pizza Pilgrims",
+    formatted_address: "11 Dean St, Soho, London W1D 3RP, UK",
+    geometry: {
+      location: {
+        lat: 51.5149415,
+        lng: -0.1332323
+      }
+    },
+    formatted_phone_number: "+442072878964",
+    opening_hours: {
+      weekday_text: [
+        "Monday: 11:30AM - 10:30PM",
+        "Tuesday: 11:30AM - 10:30PM",
+        "Wednesday: 11:30AM - 10:30PM",
+        "Thursday: 11:30AM - 10:30PM",
+        "Friday: 11:30AM - 10:30PM",
+        "Saturday: 11:30AM - 10:30PM",
+        "Sunday: 12:00AM - 9:30PM"
+      ]
+    },
+    place_id: "ChIJgVOqzCwbdkgR1tcHUo18Zpg",
+    foursquare_id: "51dfcc1a498e1abc7c95e3e4",
+    website: "http://pizzapilgrims.co.uk/"
+  },
+  {
+    name: "Domino's Pizza",
+    formatted_address: "166 High Holborn, London WC1V 6PB, UK",
+    geometry: {
+      location: {
+        lat: 51.5162976,
+        lng: -0.1250936
+      }
+    },
+    formatted_phone_number: "+442072405060",
+    opening_hours: {
+      weekday_text: [
+        "Monday: 10:00AM - 11:00PM",
+        "Tuesday: 10:00AM - 11:00PM",
+        "Wednesday: 10:00AM - 11:00PM",
+        "Thursday: 10:00AM - 11:00PM",
+        "Friday: 10:00AM - 11:00PM",
+        "Saturday: 10:00AM - 11:00PM",
+        "Sunday: 10:00AM - 11:00PM"
+      ]
+    },
+    place_id: "ChIJs93DizQbdkgRx84wK0Wd4ps",
+    foursquare_id: "4b506634f964a5203d2227e3",
+    website: "https://www.dominos.co.uk/"
+  }
+];
+
+function Place(data) {
+  this.name = ko.observable(data.name);
+  this.formatted_address = ko.observable(data.formatted_address);
+  this.goemetry = ko.observable(data.goemetry);
+  this.formatted_phone_number = ko.observable(data.formatted_phone_number);
+  this.opening_hours = ko.observable(data.opening_hours);
+  this.place_id = ko.observable(data.place_id);
+  this.foursquare_id = ko.observable(data.foursquare_id);
+  this.website = ko.observable(data.website);
+
+}
+
+// knockout bit
+
+var ViewModel = function () {
+  var self = this;
+
+  self.placeList = ko.observableArray( [] );
+  self.selectedPlace = ko.observable();
+
+  initialPlaces.forEach(function (placeItem) {
+    self.placeList.push( new Place(placeItem) );
+  });
+
+  this.changeSelectedPlace = function (clickedPlace) {
+    self.selectedPlace( clickedPlace );
+
+    // open the marker on the map
+    callFoursquareAPI
+
+    console.log(self.selectedPlace());
+  };
+
+  //console.log(selectedPlace());
+
+  // this.changeCurrentCat = function (clickedCat) {
+  //   self.currentCat( clickedCat );
+  // };
+  //
+  // this.incrementCounter = function() {
+  //   self.currentCat().clickCount(self.currentCat().clickCount() + 1);
+  // };
+}
+
+
+ko.applyBindings(new ViewModel());
+
+//
 
 var bounds;
+var defaultIcon;
+var highlightedIcon;
 function initMap() {
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 19.07283, lng: 72.88261},
-    zoom: 8
+    center: {
+      lat: 51.510357,
+      lng: -0.116773
+    },
+    zoom: 13
   });
 
-  bounds = new google.maps.LatLngBounds();
+  google.maps.event.addListenerOnce(map, 'bounds_changed', function () {
+      bounds = this.getBounds();
+  });
+
+  // Style the markers a bit. This will be our listing marker icon.
+  defaultIcon = makeMarkerIcon({
+    hoveredOver: false
+  });
+  // Create a "highlighted location" marker color for when the user
+  // mouses over the marker.
+  highlightedIcon = makeMarkerIcon({
+    hoveredOver: true
+  });
+
+  createMarkersForPlaces(initialPlaces, 7);
 
   var zoomAutocomplete = new google.maps.places.Autocomplete(
       document.getElementById('zoom-to-area-text-of-place'));
@@ -29,43 +227,9 @@ function initMap() {
   document.getElementById('query-an-area').addEventListener('click', function() {
     textSearchPlaces();
   });
-
-  // These are the real estate listings that will be shown to the user.
-  // Normally we'd have these in a database instead.
-  // var locations = [
-  //   {title: 'Park Ave Penthouse', location: {lat: 40.7713024, lng: -73.9632393}},
-  //   {title: 'Chelsea Loft', location: {lat: 40.7444883, lng: -73.9949465}},
-  //   {title: 'Union Square Open Floor Plan', location: {lat: 40.7347062, lng: -73.9895759}},
-  //   {title: 'East Village Hip Studio', location: {lat: 40.7281777, lng: -73.984377}},
-  //   {title: 'TriBeCa Artsy Bachelor Pad', location: {lat: 40.7195264, lng: -74.0089934}},
-  //   {title: 'Chinatown Homey Space', location: {lat: 40.7180628, lng: -73.9961237}}
-  // ];
-  // var largeInfowindow = new google.maps.InfoWindow();
-  // var bounds = new google.maps.LatLngBounds();
-  // // The following group uses the location array to create an array of markers on initialize.
-  // for (var i = 0; i < locations.length; i++) {
-  //   // Get the position from the location array.
-  //   var position = locations[i].location;
-  //   var title = locations[i].title;
-  //   // Create a marker per location, and put into markers array.
-  //   var marker = new google.maps.Marker({
-  //     map: map,
-  //     position: position,
-  //     title: title,
-  //     animation: google.maps.Animation.DROP,
-  //     id: i
-  //   });
-  //   // Push the marker to our array of markers.
-  //   markers.push(marker);
-  //   // Create an onclick event to open an infowindow at each marker.
-  //   marker.addListener('click', function() {
-  //     populateInfoWindow(this, largeInfowindow);
-  //   });
-  //   bounds.extend(markers[i].position);
-  // }
-  // // Extend the boundaries of the map for each marker
-  // map.fitBounds(bounds);
 }
+
+// UNUSED
 function findPlaces() {
   var numItems = document.getElementById('zoom-to-area-number-of-items').value
   var placeToSearch = document.getElementById('zoom-to-area-text').value
@@ -117,7 +281,7 @@ function buildMarker(data) {
     });
   }
 
-  bounds.extend(marker.position);
+  bounds.extend(marker.getPosition());
   map.fitBounds(bounds);
 }
 // This function populates the infowindow when the marker is clicked. We'll only allow
@@ -148,13 +312,14 @@ function zoomToArea() {
     // Geocode the address/area entered to get the center. Then, center the map
     // on it and zoom in
     geocoder.geocode(
-      { address: address
+      {
+        address: address
       },
       function(results, status) {
         if (status == google.maps.GeocoderStatus.OK) {
-          console.log(results);
           map.setCenter(results[0].geometry.location);
           map.setZoom(14);
+          getPointsOfInterest(results[0].geometry.location);
         } else {
           window.alert('We could not find that location - try entering a more' +
               ' specific place.');
@@ -162,6 +327,18 @@ function zoomToArea() {
       }
     );
   }
+}
+function getPointsOfInterest (location) {
+  service = new google.maps.places.PlacesService(map);
+  service.nearbySearch({
+    location: location,
+    radius: 2500,
+    keyword: "POI"
+  }, function (results, status) {
+    if (status == google.maps.places.PlacesServiceStatus.OK) {
+      createMarkersForPlaces(results, 20);
+    }
+  });
 }
 function textSearchPlaces() {
   var bounds = map.getBounds();
@@ -178,6 +355,30 @@ function textSearchPlaces() {
     }
   });
 }
+function callYelpAPI(place) {
+  yelpURL = ("https://api.yelp.com/v3/businesses/search/phone?phone="
+              + place.formatted_phone_number);
+  console.log(yelpURL);
+  $.ajax({
+    type: "GET",
+    url: yelpURL,
+    headers: {
+      "Authorization": "Bearer " + yelpAccessToken
+    },
+    dataType: "jsonp",
+    jsonpCallback: 'cb',
+    async: false,
+    cache: true,
+  }).done(function (response) {
+    console.log(response);
+  }).fail(function (response) {
+    console.log(response);
+  }).always(function () {
+    console.log('ok');
+  });
+}
+
+// USED
 function createMarkersForPlaces(places, limit) {
   var bounds = map.getBounds();
   var placelimit = (!limit) ? 7 : limit;
@@ -188,31 +389,73 @@ function createMarkersForPlaces(places, limit) {
       position: place.geometry.location,
       title: place.title,
       animation: google.maps.Animation.DROP,
-      id: place.place_id
+      id: place.place_id,
+      icon: makeMarkerIcon({}),
+      foursquare_id: place.foursquare_id
     });
 
     markers.push(marker);
 
     var placeInfoWindow = new google.maps.InfoWindow();
     marker.addListener('click', function() {
-      getPlacesDetails(this, placeInfoWindow);
+      callFoursquareAPI(this, placeInfoWindow);
+      //getPlacesDetails(this, placeInfoWindow, foursquareData);
+    });
+    marker.addListener('mouseover', function() {
+      this.setIcon(highlightedIcon);
+    });
+    marker.addListener('mouseout', function() {
+      this.setIcon(defaultIcon);
     });
     // bounds.extend(place.geometry.location);
-    if (place.geometry.viewport) {
-      // Only geocodes have viewport.
-      bounds.union(place.geometry.viewport);
-    } else {
-      bounds.extend(place.geometry.location);
-    }
+    // if (place.geometry.viewport) {
+    //   // Only geocodes have viewport.
+    //   bounds.union(place.geometry.viewport);
+    // } else {
+    //   bounds.extend(place.geometry.location);
+    // }
   }
 
-  map.fitBounds(bounds);
+  // map.fitBounds(bounds);
+}
+function callFoursquareAPI(place, infowindow) {
+  var dt = new Date();
+  var foursquareURI = "https://api.foursquare.com/v2/venues/" + place.foursquare_id + "?";
+  foursquareURI += $.param({
+    client_id: foursquareClientID,
+    client_secret: foursquareClientSecret,
+    v: dt.toISOString().slice(0, 10).replace(/-/g, '')
+  });
+  $.getJSON( foursquareURI, function() {})
+    .done(function (data) {
+      var message, likes, rating;
+      if (data.response.venue) {
+        if (data.response.venue.price) {
+          message = data.response.venue.price.message;
+        }
+        if (data.response.venue.likes) {
+          likes = data.response.venue.likes.count;
+        }
+        if (data.response.venue.rating) {
+          rating = data.response.venue.rating;
+        }
+        foursquareData = {
+          priceMessage: message,
+          likesCount: likes,
+          rating: rating
+        }
+        getPlacesDetails(place, infowindow, foursquareData)
+      }
+    })
+    .fail(function (response) {
+      console.log(response)
+    })
 }
 
 // This is the PLACE DETAILS search - it's the most detailed so it's only
 // executed when a marker is selected, indicating the user wants more
 // details about that place.
-function getPlacesDetails(marker, infowindow) {
+function getPlacesDetails(marker, infowindow, foursquareData) {
   var service = new google.maps.places.PlacesService(map);
   service.getDetails({
     placeId: marker.id
@@ -232,6 +475,17 @@ function getPlacesDetails(marker, infowindow) {
       }
       if (place.formatted_phone_number) {
         innerHTML += '<br>' + place.formatted_phone_number;
+      }
+      if (foursquareData) {
+        if (foursquareData.priceMessage) {
+          innerHTML += '<br>Price Level: ' + foursquareData.priceMessage;
+        }
+        if (foursquareData.likesCount) {
+          innerHTML += '<br>Likes: ' + foursquareData.likesCount;
+        }
+        if (foursquareData.rating) {
+          innerHTML += '<br>Rating (0-10): ' + foursquareData.rating;
+        }
       }
       if (place.opening_hours) {
         innerHTML += '<br><br><strong>Hours:</strong><br>' +
@@ -256,4 +510,11 @@ function getPlacesDetails(marker, infowindow) {
       });
     }
   });
+}
+function makeMarkerIcon(obj) {
+  var markerImage = (obj.hoveredOver) ? new google.maps.MarkerImage(
+    'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png') :
+    new google.maps.MarkerImage(
+      'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png')
+  return markerImage;
 }

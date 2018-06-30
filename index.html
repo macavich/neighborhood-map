@@ -10,6 +10,12 @@
       <h1>Learn about a Neighborhood</h1>
       <hr>
       <div>
+        <!-- start knockout bit -->
+        <select
+          data-bind="options: placeList, value:selectedPlace, optionsText: 'name', click: changeSelectedPlace"
+         class="dropdown">
+       </select>
+        <!-- end knockout bit -->
         <h3>Enter the name of a Place!</h3>
         <input id="zoom-to-area-text" type="text" placeholder="Where do you want to learn about?!">
         <input id="zoom-to-area" type="button" value="Zoom">
@@ -22,6 +28,8 @@
       </div>
     </div>
     <div id="map"></div>
+    <script src="js/libs/jquery.min.js"></script>
+    <script src="js/libs/knockout-3.2.0.js"></script>
     <script src="js/app.js"></script>
     <script async defer
         src="https://maps.googleapis.com/maps/api/js?libraries=places,geometry&key=AIzaSyDBX-kr5Ov43IVNnFGiSb_tkbUmcytq7Mc&v=3&callback=initMap">
