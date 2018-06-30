@@ -132,49 +132,61 @@ var initialPlaces = [
   }
 ];
 
-console.log(initialPlaces);
+
+// knockout bit
+
+// var ViewModel = function () {
+//   var self = this;
+//
+//   self.placeList = ko.observableArray( [] );
+//   self.selectedPlace = ko.observable();
+//
+//   initialPlaces.forEach(function (placeItem) {
+//     self.placeList.push( new Place(placeItem) );
+//   });
+//
+//   this.changeSelectedPlace = function (clickedPlace) {
+//     self.selectedPlace( clickedPlace );
+//
+//     // open the marker on the map
+//     console.log('uh');
+//     console.log(self.selectedPlace());
+//     return;
+//     callFoursquareAndOpenMarker(self.selectedPlace());
+//
+//     console.log(self.selectedPlace());
+//   };
+//
+// }
+//
+//
+// ko.applyBindings(new ViewModel());
+
+//
+
 function Place(data) {
   this.name = ko.observable(data.name);
   this.formatted_address = ko.observable(data.formatted_address);
-  this.goemetry = ko.observable(data.goemetry);
+  this.geometry = ko.observable(data.geometry);
   this.formatted_phone_number = ko.observable(data.formatted_phone_number);
   this.opening_hours = ko.observable(data.opening_hours);
   this.place_id = ko.observable(data.place_id);
   this.foursquare_id = ko.observable(data.foursquare_id);
   this.website = ko.observable(data.website);
-
 }
 
-// knockout bit
-
-var ViewModel = function () {
-  var self = this;
-
-  self.placeList = ko.observableArray( [] );
-  self.selectedPlace = ko.observable();
-
-  initialPlaces.forEach(function (placeItem) {
-    self.placeList.push( new Place(placeItem) );
-  });
-
-  this.changeSelectedPlace = function (clickedPlace) {
-    self.selectedPlace( clickedPlace );
-
-    // open the marker on the map
-    console.log('uh');
-    console.log(self.selectedPlace());
-    return;
-    callFoursquareAndOpenMarker(self.selectedPlace());
-
-    console.log(self.selectedPlace());
-  };
-
+function unwrapObservable(PlaceObservable) {
+  return {
+    name: PlaceObservable().name(),
+    formatted_address: PlaceObservable().formatted_address(),
+    geometry: PlaceObservable().geometry(),
+    formatted_phone_number: PlaceObservable().formatted_phone_number(),
+    opening_hours: PlaceObservable().opening_hours(),
+    place_id: PlaceObservable().place_id(),
+    foursquare_id: PlaceObservable().foursquare_id(),
+    website: PlaceObservable().website()
+  }
 }
-
-
-ko.applyBindings(new ViewModel());
-
-//
 
 var bounds;
 var defaultIcon;
@@ -193,6 +205,40 @@ function initMap() {
       bounds = this.getBounds();
   });
 
+  // knockout bit
+  var ViewModel = function () {
+    var self = this;
+
+    self.placeList = ko.observableArray( [] );
+    self.selectedPlace = ko.observable();
+
+    initialPlaces.forEach(function (placeItem) {
+      self.placeList.push( new Place(placeItem) );
+    });
+
+    this.changeSelectedPlace = function (clickedPlace) {
+      self.selectedPlace( clickedPlace );
+
+      // open the marker on the map
+      console.log('uh');
+      console.log(self.selectedPlace());
+      console.log(self.selectedPlace().name());
+      console.log(self.selectedPlace().geometry());
+      console.log(unwrapObservable(self.selectedPlace));
+      var selectedPlaceInfoWindow = new google.maps.InfoWindow();
+      console.log('theend');
+      createMarkersForPlaces([unwrapObservable(self.selectedPlace)], 1, true);
+
+      console.log(self.selectedPlace());
+    };
+
+
+    createMarkersForPlaces(initialPlaces, 7, false);
+  }
+
+  ko.applyBindings(new ViewModel());
+
+  // end knockout bit
   // Style the markers a bit. This will be our listing marker icon.
   defaultIcon = makeMarkerIcon({
     hoveredOver: false
@@ -202,8 +248,6 @@ function initMap() {
   highlightedIcon = makeMarkerIcon({
     hoveredOver: true
   });
-
-  createMarkersForPlaces(initialPlaces, 7);
 
   var zoomAutocomplete = new google.maps.places.Autocomplete(
       document.getElementById('zoom-to-area-text-of-place'));
@@ -374,9 +418,11 @@ function callYelpAPI(place) {
 }
 
 // USED
-function createMarkersForPlaces(places, limit) {
+function createMarkersForPlaces(places, limit, openMarker) {
   var bounds = map.getBounds();
   var placelimit = (!limit) ? 7 : limit;
+  console.log('here');
+  console.log(places);
   for (var i = 0; i < Math.min(places.length, placelimit); i++) {
     var place = places[i];
     var marker = new google.maps.Marker({
@@ -402,6 +448,10 @@ function createMarkersForPlaces(places, limit) {
     marker.addListener('mouseout', function() {
       this.setIcon(defaultIcon);
     });
+
+    if (openMarker && limit === 1) {
+      callFoursquareAndOpenMarker(marker, placeInfoWindow)
+    }
     // bounds.extend(place.geometry.location);
     // if (place.geometry.viewport) {
     //   // Only geocodes have viewport.
@@ -421,8 +471,8 @@ function callFoursquareAndOpenMarker(place, infowindow) {
     client_secret: foursquareClientSecret,
     v: dt.toISOString().slice(0, 10).replace(/-/g, '')
   });
-  console.log(place.foursquare_id);
-  console.log(foursquareURI);
+  console.log('we were here');
+  console.log(place);
   $.getJSON( foursquareURI, function() {})
     .done(function (data) {
       var likes = 0;
@@ -448,7 +498,8 @@ function callFoursquareAndOpenMarker(place, infowindow) {
         maleCount: maleCount,
         femaleCount: femaleCount
       }
-
+      console.log('we were hererrr');
+      console.log(data);
       getPlacesDetails(place, infowindow, foursquareData)
     })
   .fail(function (response) {
@@ -461,9 +512,15 @@ function callFoursquareAndOpenMarker(place, infowindow) {
 // details about that place.
 function getPlacesDetails(marker, infowindow, foursquareData) {
   var service = new google.maps.places.PlacesService(map);
+  // handle for using the static data from the observable
+  var id = (marker.id) ? marker.id : marker.place_id;
+  console.log('thisid');
+  console.log(id);
   service.getDetails({
-    placeId: marker.id
+    placeId: id
   }, function(place, status) {
+    console.log('found here');
+    console.log(place, status);
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       // Set the marker property on this infowindow so it isn't created again.
       infowindow.marker = marker;
@@ -489,7 +546,9 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
 
       innerHTML += '</div>';
       infowindow.setContent(innerHTML);
+      console.log('is this it');
       infowindow.open(map, marker);
+      console.log('ok234');
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
