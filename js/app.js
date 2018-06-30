@@ -132,6 +132,7 @@ var initialPlaces = [
   }
 ];
 
+console.log(initialPlaces);
 function Place(data) {
   this.name = ko.observable(data.name);
   this.formatted_address = ko.observable(data.formatted_address);
@@ -160,20 +161,14 @@ var ViewModel = function () {
     self.selectedPlace( clickedPlace );
 
     // open the marker on the map
-    callFoursquareAPI
+    console.log('uh');
+    console.log(self.selectedPlace());
+    return;
+    callFoursquareAndOpenMarker(self.selectedPlace());
 
     console.log(self.selectedPlace());
   };
 
-  //console.log(selectedPlace());
-
-  // this.changeCurrentCat = function (clickedCat) {
-  //   self.currentCat( clickedCat );
-  // };
-  //
-  // this.incrementCounter = function() {
-  //   self.currentCat().clickCount(self.currentCat().clickCount() + 1);
-  // };
 }
 
 
@@ -398,7 +393,7 @@ function createMarkersForPlaces(places, limit) {
 
     var placeInfoWindow = new google.maps.InfoWindow();
     marker.addListener('click', function() {
-      callFoursquareAPI(this, placeInfoWindow);
+      callFoursquareAndOpenMarker(this, placeInfoWindow);
       //getPlacesDetails(this, placeInfoWindow, foursquareData);
     });
     marker.addListener('mouseover', function() {
@@ -418,38 +413,47 @@ function createMarkersForPlaces(places, limit) {
 
   // map.fitBounds(bounds);
 }
-function callFoursquareAPI(place, infowindow) {
+function callFoursquareAndOpenMarker(place, infowindow) {
   var dt = new Date();
-  var foursquareURI = "https://api.foursquare.com/v2/venues/" + place.foursquare_id + "?";
+  var foursquareURI = "https://api.foursquare.com/v2/venues/" + place.foursquare_id + "/likes?";
   foursquareURI += $.param({
     client_id: foursquareClientID,
     client_secret: foursquareClientSecret,
     v: dt.toISOString().slice(0, 10).replace(/-/g, '')
   });
+  console.log(place.foursquare_id);
+  console.log(foursquareURI);
   $.getJSON( foursquareURI, function() {})
     .done(function (data) {
-      var message, likes, rating;
-      if (data.response.venue) {
-        if (data.response.venue.price) {
-          message = data.response.venue.price.message;
-        }
-        if (data.response.venue.likes) {
-          likes = data.response.venue.likes.count;
-        }
-        if (data.response.venue.rating) {
-          rating = data.response.venue.rating;
-        }
-        foursquareData = {
-          priceMessage: message,
-          likesCount: likes,
-          rating: rating
-        }
-        getPlacesDetails(place, infowindow, foursquareData)
+      var likes = 0;
+
+      if (data.response.likes) {
+        likes = data.response.likes.count;
       }
+
+      var maleCount = 0;
+      var femaleCount = 0;
+      if (data.response.likes.items !== undefined && data.response.likes.items.length > 0) {
+        data.response.likes.items.forEach(function (like) {
+          if (like.gender === 'male') {
+            maleCount++;
+          } else {
+            femaleCount++;
+          }
+        });
+      }
+
+      foursquareData = {
+        likesCount: likes,
+        maleCount: maleCount,
+        femaleCount: femaleCount
+      }
+
+      getPlacesDetails(place, infowindow, foursquareData)
     })
-    .fail(function (response) {
-      console.log(response)
-    })
+  .fail(function (response) {
+    console.log(response)
+  })
 }
 
 // This is the PLACE DETAILS search - it's the most detailed so it's only
@@ -468,39 +472,21 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
         innerHTML += '<strong>' + place.name + '</strong>';
       }
       if (place.formatted_address) {
-        innerHTML += '<br>' + place.formatted_address;
+        innerHTML += '<br>Address: ' + place.formatted_address;
       }
       if (place.website) {
         innerHTML += '<br><a href="' + place.website + '">website</a>'
       }
       if (place.formatted_phone_number) {
-        innerHTML += '<br>' + place.formatted_phone_number;
+        innerHTML += '<br>Phone: ' + place.formatted_phone_number;
       }
       if (foursquareData) {
-        if (foursquareData.priceMessage) {
-          innerHTML += '<br>Price Level: ' + foursquareData.priceMessage;
-        }
-        if (foursquareData.likesCount) {
-          innerHTML += '<br>Likes: ' + foursquareData.likesCount;
-        }
-        if (foursquareData.rating) {
-          innerHTML += '<br>Rating (0-10): ' + foursquareData.rating;
-        }
+        innerHTML += '<br><br>Likes: ' + foursquareData.likesCount;
+        var totalCount = foursquareData.maleCount + foursquareData.femaleCount;
+        innerHTML += '<br>Pct Male Liked: ' + (foursquareData.maleCount/totalCount).toFixed(2);
+        innerHTML += '<br>Pct Female Liked: ' + (foursquareData.femaleCount/totalCount).toFixed(2);
       }
-      if (place.opening_hours) {
-        innerHTML += '<br><br><strong>Hours:</strong><br>' +
-            place.opening_hours.weekday_text[0] + '<br>' +
-            place.opening_hours.weekday_text[1] + '<br>' +
-            place.opening_hours.weekday_text[2] + '<br>' +
-            place.opening_hours.weekday_text[3] + '<br>' +
-            place.opening_hours.weekday_text[4] + '<br>' +
-            place.opening_hours.weekday_text[5] + '<br>' +
-            place.opening_hours.weekday_text[6];
-      }
-      if (place.photos) {
-        innerHTML += '<br><br><img src="' + place.photos[0].getUrl(
-            {maxHeight: 100, maxWidth: 200}) + '">';
-      }
+
       innerHTML += '</div>';
       infowindow.setContent(innerHTML);
       infowindow.open(map, marker);
