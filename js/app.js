@@ -173,6 +173,11 @@ function Place(data) {
   this.place_id = ko.observable(data.place_id);
   this.foursquare_id = ko.observable(data.foursquare_id);
   this.website = ko.observable(data.website);
+  this.selected = ko.observable(false);
+
+  this.toggleHover = function () {
+    this.selected(!this.selected());
+  }
 }
 
 function unwrapObservable(PlaceObservable) {
@@ -209,6 +214,7 @@ function initMap() {
   var ViewModel = function () {
     var self = this;
 
+    self.filter = ko.observable('');
     self.placeList = ko.observableArray( [] );
     self.selectedPlace = ko.observable();
 
@@ -216,15 +222,26 @@ function initMap() {
       self.placeList.push( new Place(placeItem) );
     });
 
+    self.filteredItems = ko.computed(function() {
+      var filter = self.filter();
+      if (!filter || filter == "None") {
+        return self.placeList();
+      } else {
+        return ko.utils.arrayFilter(self.placeList(), function (item) {
+          return item.name().indexOf(filter) > -1;
+        })
+      };
+    })
+
     this.changeSelectedPlace = function (clickedPlace) {
       self.selectedPlace( clickedPlace );
 
       // open the marker on the map
-      console.log('uh');
-      console.log(self.selectedPlace());
-      console.log(self.selectedPlace().name());
-      console.log(self.selectedPlace().geometry());
-      console.log(unwrapObservable(self.selectedPlace));
+      // console.log('uh');
+      // console.log(self.selectedPlace());
+      // console.log(self.selectedPlace().name());
+      // console.log(self.selectedPlace().geometry());
+      // console.log(unwrapObservable(self.selectedPlace));
       var selectedPlaceInfoWindow = new google.maps.InfoWindow();
       console.log('theend');
       createMarkersForPlaces([unwrapObservable(self.selectedPlace)], 1, true);
@@ -429,7 +446,7 @@ function createMarkersForPlaces(places, limit, openMarker) {
       map: map,
       position: place.geometry.location,
       title: place.title,
-      animation: google.maps.Animation.DROP,
+      animation: (openMarker && limit === 1) ? undefined : google.maps.Animation.DROP,
       id: place.place_id,
       icon: makeMarkerIcon({}),
       foursquare_id: place.foursquare_id

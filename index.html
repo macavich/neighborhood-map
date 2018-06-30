@@ -11,10 +11,20 @@
       <hr>
       <div>
         <!-- start knockout bit -->
-        <select
+        <!-- <select
           data-bind="options: placeList, value:selectedPlace, optionsText: 'name', click: changeSelectedPlace"
-         class="dropdown">
-       </select>
+          >
+       </select> -->
+        <div class="list-container">
+          <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter">
+          <ul data-bind="foreach: filteredItems">
+            <li data-bind="text: name,
+                          click: $parent.changeSelectedPlace,
+                          event:{ mouseover: toggleHover, mouseout: toggleHover},
+                          css: { hovered: selected }"
+            ></li>
+          </ul>
+        </div>
         <!-- end knockout bit -->
         <h3>Enter the name of a Place!</h3>
         <input id="zoom-to-area-text" type="text" placeholder="Where do you want to learn about?!">
