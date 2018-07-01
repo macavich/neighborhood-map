@@ -7,24 +7,28 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   </head>
   <body>
-    <div class="options-box">
-      <h3>Check out these Pizza places in London:</h3>
-      <hr>
-      <div class="list-container">
-        <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter">
-        <button type="button" data-bind="click: initialize">
-          <span class="glyphicon glyphicon-filter"></span>Filter
-        </button>
-        <ul data-bind="foreach: filteredItems">
-          <li data-bind="text: name,
-                        click: $parent.changeSelectedPlace,
-                        event:{ mouseover: toggleHover, mouseout: toggleHover},
-                        css: { hovered: selected }"
-          ></li>
-        </ul>
+    <div class="flex-container">
+      <div class="options-box">
+        <h3>Check out these Pizza places in London:</h3>
+        <hr>
+        <div class="list-container">
+          <div class="input-container">
+            <input type="text" placeholder="Search below..." id="placeInput" data-bind="value: filter">
+            <button type="button" data-bind="click: initialize">
+              <span class="glyphicon glyphicon-filter"></span>Filter
+            </button>
+          </div>
+          <ul data-bind="foreach: filteredItems">
+            <li data-bind="text: name,
+                          click: $parent.changeSelectedPlace,
+                          event:{ mouseover: toggleHover, mouseout: toggleHover},
+                          css: { hovered: selected }"
+            ></li>
+          </ul>
+        </div>
       </div>
+      <div id="map"></div>
     </div>
-    <div id="map"></div>
     <script src="js/libs/jquery.min.js"></script>
     <script src="js/libs/knockout-3.2.0.js"></script>
     <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->

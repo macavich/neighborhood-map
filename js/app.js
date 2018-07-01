@@ -191,7 +191,9 @@ function initMap() {
       lat: 51.510357,
       lng: -0.116773
     },
-    zoom: 13
+    zoom: 13,
+    zoomControl: false,
+    scaleControl: true
   });
 
   google.maps.event.addListenerOnce(map, 'bounds_changed', function () {
@@ -279,34 +281,54 @@ function hideMarkers(markers) {
 function createMarkersForPlaces(places, limit, openMarker) {
   var bounds = map.getBounds();
   var placelimit = (!limit) ? 7 : limit;
+  // Building a marker for each place
   for (var i = 0; i < Math.min(places.length, placelimit); i++) {
     var place = places[i];
+
+    // handle animations for markers that are already placed
     var animation = (openMarker && limit === 1) ? undefined : google.maps.Animation.DROP;
+    var opened = false;
     if ( typeof(openMarker) === "string" ) {
       if (place.name === openMarker) {
         animation = undefined;
       }
+    } else if (typeof(openMarker) === "boolean") {
+      opened = openMarker;
     }
+
+    var icon = (opened) ? makeMarkerIcon({'hoveredOver':true}) : makeMarkerIcon({})
     var marker = new google.maps.Marker({
       map: map,
       position: place.geometry.location,
       animation: animation,
       id: place.place_id,
-      icon: makeMarkerIcon({}),
-      foursquare_id: place.foursquare_id
+      icon: icon,
+      foursquare_id: place.foursquare_id,
+      opened: opened
     });
 
     markers.push(marker);
-
     var placeInfoWindow = new google.maps.InfoWindow();
+
+    // Event listeners for markers
+
+    // build and open infowindow
     marker.addListener('click', function() {
+      this.setIcon(highlightedIcon);
+      this.opened = true;
       callFoursquareAndOpenMarker(this, placeInfoWindow);
     });
+    // highlight marker when moused
     marker.addListener('mouseover', function() {
-      this.setIcon(highlightedIcon);
+      if (!this.opened) {
+        this.setIcon(highlightedIcon);
+      }
     });
+    // remove highighting when moused
     marker.addListener('mouseout', function() {
-      this.setIcon(defaultIcon);
+      if (!this.opened) {
+        this.setIcon(defaultIcon);
+      }
     });
 
     if (openMarker && limit === 1) {
@@ -323,14 +345,19 @@ function createMarkersForPlaces(places, limit, openMarker) {
 
   // map.fitBounds(bounds);
 }
+
+// Calling the Foursquare API for some extra information about the restaurants Likes
 function callFoursquareAndOpenMarker(place, infowindow) {
   var dt = new Date();
+
+  // building the request URI for Foursquare
   var foursquareURI = "https://api.foursquare.com/v2/venues/" + place.foursquare_id + "/likes?";
   foursquareURI += $.param({
     client_id: foursquareClientID,
     client_secret: foursquareClientSecret,
     v: dt.toISOString().slice(0, 10).replace(/-/g, '')
   });
+  // Calling the foursquare API
   $.getJSON( foursquareURI, function() {})
     .done(function (data) {
       var likes = 0;
@@ -339,6 +366,7 @@ function callFoursquareAndOpenMarker(place, infowindow) {
         likes = data.response.likes.count;
       }
 
+      // make some aggregated data based on what gender is liking the place
       var maleCount = 0;
       var femaleCount = 0;
       if (data.response.likes.items !== undefined && data.response.likes.items.length > 0) {
@@ -351,21 +379,26 @@ function callFoursquareAndOpenMarker(place, infowindow) {
         });
       }
 
-      foursquareData = {
+      var foursquareData = {
         likesCount: likes,
         maleCount: maleCount,
         femaleCount: femaleCount
-      }
-      getPlacesDetails(place, infowindow, foursquareData)
+      };
+
+      // build the infowindow and display it
+      getPlacesDetails(place, infowindow, foursquareData);
     })
   .fail(function (response) {
-    console.log(response)
+    // alert the user of the lack of data, and build the infowindows and display
+    window.alert(
+      "We failed to receive some extra details about this place, and so we are just providing you the default."
+    );
+    getPlacesDetails(place, infowindow);
   })
 }
 
-// This is the PLACE DETAILS search - it's the most detailed so it's only
-// executed when a marker is selected, indicating the user wants more
-// details about that place.
+// This builds the info window and displays it
+// it includes a API call to Google's PlacesService
 function getPlacesDetails(marker, infowindow, foursquareData) {
   var service = new google.maps.places.PlacesService(map);
   // handle for using the static data from the observable
@@ -376,6 +409,8 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       // Set the marker property on this infowindow so it isn't created again.
       infowindow.marker = marker;
+
+      // building the infowindow's html
       var innerHTML = '<div>';
       if (place.name) {
         innerHTML += '<strong>' + place.name + '</strong>';
@@ -399,10 +434,12 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
       innerHTML += '</div>';
       infowindow.setContent(innerHTML);
       infowindow.open(map, marker);
+
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
-        //createMarkersForPlaces(initialPlaces, 7, false);
+        marker.opened = false;
+        marker.setIcon(defaultIcon);
       });
     }
   });
