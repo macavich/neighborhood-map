@@ -219,7 +219,9 @@ function initMap() {
 
     self.filteredItems = ko.computed(function() {
       var filter = self.filter();
+      hideMarkers(markers);
       if (!filter || filter == "None" || filter === "") {
+        console.log(self.selectedPlace());
         createMarkersForPlaces(initialPlaces, 7, false);
         console.log('called initial');
         return self.placeList();
@@ -232,8 +234,6 @@ function initMap() {
         filteredPlaceArray.forEach( function (place) {
           filteredPlaces.push(unwrapObservable(place));
         });
-
-        hideMarkers(markers);
 
         createMarkersForPlaces(filteredPlaces, 7, false);
         return ko.utils.arrayFilter(self.placeList(), function (item) {
