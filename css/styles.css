@@ -45,11 +45,6 @@ Left hand section
 *
 */
 
-.container {
-  height: 100%;
-  position: relative;
-}
-
 .input-container {
   display: flex;
   flex-wrap: wrap;

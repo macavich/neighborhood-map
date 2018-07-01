@@ -1,0 +1,37 @@
+
+.header__menu {
+  display: none;
+}
+
+@media screen and (max-width: 530px) {
+  #map {
+    width: 100%;
+  }
+  .options-box {
+    z-index: 10;
+    background-color: grey;
+    width: 300px;
+    position: absolute;
+    /* This trasform moves the drawer off canvas. */
+    -webkit-transform: translate(-300px, 0);
+    transform: translate(-300px, 0);
+    /* Optionally, we animate the drawer. */
+    transition: transform 0.3s ease;
+  }
+  .open {
+    -webkit-transform: translate(0, 0);
+    transform: translate(0, 0);
+  }
+  .header__menu {
+    display: inline-block;
+    position: absolute;
+    right: 0;
+    padding: 1em;
+    z-index: 10;
+    background-color: grey;
+  }
+  .header__menu svg {
+    width: 32px;
+    fill: #E0E0E0;
+  }
+}

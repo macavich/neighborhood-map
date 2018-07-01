@@ -254,6 +254,17 @@ function initMap() {
       createMarkersForPlaces([unwrapObservable(self.selectedPlace)], 1, true);
     };
 
+    // NAV button drawer
+    var $optionsbox = $('.options-box');
+    $('.header__menu').click(function (event) {
+      $optionsbox.toggleClass('open');
+    })
+
+    $('#map').click(function (event) {
+      if ($optionsbox.hasClass('open')) {
+        $optionsbox.toggleClass('open');
+      }
+    })
   }
 
   ko.applyBindings(new ViewModel());
