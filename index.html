@@ -10,13 +10,12 @@
       <h1>Learn about a Neighborhood</h1>
       <hr>
       <div>
-        <!-- start knockout bit -->
-        <!-- <select
-          data-bind="options: placeList, value:selectedPlace, optionsText: 'name', click: changeSelectedPlace"
-          >
-       </select> -->
         <div class="list-container">
+
+          <!-- <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter, valueUpdate: 'afterkeydown'"> -->
+
           <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter">
+          <button type="button">Filter</button>
           <ul data-bind="foreach: filteredItems">
             <li data-bind="text: name,
                           click: $parent.changeSelectedPlace,

@@ -135,35 +135,6 @@ var initialPlaces = [
 
 // knockout bit
 
-// var ViewModel = function () {
-//   var self = this;
-//
-//   self.placeList = ko.observableArray( [] );
-//   self.selectedPlace = ko.observable();
-//
-//   initialPlaces.forEach(function (placeItem) {
-//     self.placeList.push( new Place(placeItem) );
-//   });
-//
-//   this.changeSelectedPlace = function (clickedPlace) {
-//     self.selectedPlace( clickedPlace );
-//
-//     // open the marker on the map
-//     console.log('uh');
-//     console.log(self.selectedPlace());
-//     return;
-//     callFoursquareAndOpenMarker(self.selectedPlace());
-//
-//     console.log(self.selectedPlace());
-//   };
-//
-// }
-//
-//
-// ko.applyBindings(new ViewModel());
-
-//
-
 function Place(data) {
   this.name = ko.observable(data.name);
   this.formatted_address = ko.observable(data.formatted_address);
@@ -192,6 +163,9 @@ function unwrapObservable(PlaceObservable) {
     website: PlaceObservable().website()
   }
 }
+
+// knockout end
+
 
 var bounds;
 var defaultIcon;
@@ -557,8 +531,8 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
       if (foursquareData) {
         innerHTML += '<br><br>Likes: ' + foursquareData.likesCount;
         var totalCount = foursquareData.maleCount + foursquareData.femaleCount;
-        innerHTML += '<br>Pct Male Liked: ' + (foursquareData.maleCount/totalCount).toFixed(2);
-        innerHTML += '<br>Pct Female Liked: ' + (foursquareData.femaleCount/totalCount).toFixed(2);
+        innerHTML += '<br>Pct Male Liked: ' + ((foursquareData.maleCount/totalCount)*100).toFixed(2) + '%';
+        innerHTML += '<br>Pct Female Liked: ' + ((foursquareData.femaleCount/totalCount)*100).toFixed(2) + '%';
       }
 
       innerHTML += '</div>';
