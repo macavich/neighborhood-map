@@ -7,15 +7,12 @@
   </head>
   <body>
     <div class="options-box">
-      <h1>Learn about a Neighborhood</h1>
+      <h1>Check out these Pizza places in London:</h1>
       <hr>
       <div>
         <div class="list-container">
-
-          <!-- <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter, valueUpdate: 'afterkeydown'"> -->
-
           <input type="text" placeholder="Search.." id="placeInput" data-bind="value: filter">
-          <button type="button">Filter</button>
+          <button type="button" data-bind="click: initialize">Filter</button>
           <ul data-bind="foreach: filteredItems">
             <li data-bind="text: name,
                           click: $parent.changeSelectedPlace,
@@ -24,17 +21,6 @@
             ></li>
           </ul>
         </div>
-        <!-- end knockout bit -->
-        <h3>Enter the name of a Place!</h3>
-        <input id="zoom-to-area-text" type="text" placeholder="Where do you want to learn about?!">
-        <input id="zoom-to-area" type="button" value="Zoom">
-        <h5> Optionally, what do you want to learn about there</h5>
-        <input id="zoom-to-area-text-of-place" type="text" placeholder="What do you want to see there?">
-        <h5> Optionally, how many items do you want to see?</h5>
-        <input id="zoom-to-area-number-of-items" type="text" placeholder="How many items do you want to see?">
-        <hr>
-        <input id="query-an-area" type="button" value="Search">
-      </div>
     </div>
     <div id="map"></div>
     <script src="js/libs/jquery.min.js"></script>
