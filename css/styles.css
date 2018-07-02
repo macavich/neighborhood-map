@@ -3,6 +3,7 @@
 All Body
 *
 */
+
 html,
 body {
   font-family: Arial, sans-serif;
@@ -34,7 +35,7 @@ Container
   width: 30%;
 }
 
-#map {
+.map {
   width: 70%;
 }
 

@@ -1,10 +1,10 @@
-var map;
+let map;
 // Create a new blank array for all the listing markers.
-var markers = [];
-var yelpAccessToken = "ma8Io2GDolGxcOxuBju5pfrMfrrS7SUJ1JaKC70_EexNP8EHcYoEdWUGrdcM_LUkdPnBFg4Xv2pcK3RIyNE9toXsQhHOVZLgLc_rzJqj1EtImeybGbrEo69FH34xW3Yx";
-var foursquareClientID = "K5DB4HO5HMKVQGHMSURD54VGCDZZNYXIJYXE1WRHJ53H12BX";
-var foursquareClientSecret = "BSFJKIIPID5IKQLNIQPRZAHLGDS54NLJXHMUGN0FCQCBH1GC";
-var initialPlaces = [
+let markers = [];
+const yelpAccessToken = 'ma8Io2GDolGxcOxuBju5pfrMfrrS7SUJ1JaKC70_EexNP8EHcYoEdWUGrdcM_LUkdPnBFg4Xv2pcK3RIyNE9toXsQhHOVZLgLc_rzJqj1EtImeybGbrEo69FH34xW3Yx';
+const foursquareClientID = 'K5DB4HO5HMKVQGHMSURD54VGCDZZNYXIJYXE1WRHJ53H12BX';
+const foursquareClientSecret = 'BSFJKIIPID5IKQLNIQPRZAHLGDS54NLJXHMUGN0FCQCBH1GC';
+const initialPlaces = [
   {
     name: "Pizza Union",
     formatted_address: "246-250 Pentonville Rd. London N1 93Y, UK",
@@ -181,9 +181,8 @@ function unwrapObservable(PlaceObservable) {
   }
 }
 
-var bounds;
-var defaultIcon;
-var highlightedIcon;
+let defaultIcon;
+let highlightedIcon;
 function initMap() {
   // Constructor creates a new map - only center and zoom are required.
   map = new google.maps.Map(document.getElementById('map'), {
@@ -196,13 +195,9 @@ function initMap() {
     scaleControl: true
   });
 
-  google.maps.event.addListenerOnce(map, 'bounds_changed', function () {
-      bounds = this.getBounds();
-  });
-
   // knockout bit
-  var ViewModel = function () {
-    var self = this;
+  let ViewModel = function () {
+    let self = this;
 
     self.filter = ko.observable('');
     self.placeList = ko.observableArray( [] );
@@ -213,31 +208,28 @@ function initMap() {
     });
 
     self.initialize = function() {
-      var filter = self.filter();
-      if (!filter || filter == "None" || filter === "") {
-        createMarkersForPlaces(initialPlaces, 7, self.selectedPlace().name());
+      let filter = self.filter();
+      if ((!filter || filter == 'None' || filter === '') && self.selectedPlace() !== undefined) {
+        createMarkersForPlaces(initialPlaces, 5, self.selectedPlace().name());
       }
     };
 
     self.filteredItems = ko.computed(function() {
-      var filter = self.filter();
+      let filter = self.filter();
       hideMarkers(markers);
-      if (!filter || filter == "None" || filter === "") {
-        console.log(self.selectedPlace());
-        createMarkersForPlaces(initialPlaces, 7, false);
-        console.log('called initial');
+      if ((!filter || filter == 'None' || filter === '') && self.selectedPlace() !== undefined) {
+        createMarkersForPlaces(initialPlaces, 5, false);
         return self.placeList();
       } else {
-        var filteredPlaceArray = ko.utils.arrayFilter(self.placeList(), function (item) {
+        const filteredPlaceArray = ko.utils.arrayFilter(self.placeList(), function (item) {
             return item.name().indexOf(filter) > -1;
           })
-        console.log(filteredPlaceArray);
-        var filteredPlaces = [];
+        let filteredPlaces = [];
         filteredPlaceArray.forEach( function (place) {
           filteredPlaces.push(unwrapObservable(place));
         });
 
-        createMarkersForPlaces(filteredPlaces, 7, false);
+        createMarkersForPlaces(filteredPlaces, 5, false);
         return ko.utils.arrayFilter(self.placeList(), function (item) {
           return item.name().indexOf(filter) > -1;
         })
@@ -245,17 +237,15 @@ function initMap() {
     })
 
     this.changeSelectedPlace = function (clickedPlace) {
-
       self.selectedPlace( clickedPlace );
       hideMarkers(markers);
 
       // open the marker on the map
-      var selectedPlaceInfoWindow = new google.maps.InfoWindow();
       createMarkersForPlaces([unwrapObservable(self.selectedPlace)], 1, true);
     };
 
     // NAV button drawer
-    var $optionsbox = $('.options-box');
+    let $optionsbox = $('.options-box');
     $('.header__menu').click(function (event) {
       $optionsbox.toggleClass('open');
     })
@@ -268,7 +258,6 @@ function initMap() {
   }
 
   ko.applyBindings(new ViewModel());
-
   // end knockout bit
 
   // Style the markers a bit. This will be our listing marker icon.
@@ -284,31 +273,30 @@ function initMap() {
 }
 
 function hideMarkers(markers) {
-  for (var i = 0; i < markers.length; i++) {
+  for (let i = 0; i < markers.length; i++) {
     markers[i].setMap(null);
   }
 }
 
 function createMarkersForPlaces(places, limit, openMarker) {
-  var bounds = map.getBounds();
-  var placelimit = (!limit) ? 7 : limit;
+  let placelimit = (!limit) ? 7 : limit;
   // Building a marker for each place
-  for (var i = 0; i < Math.min(places.length, placelimit); i++) {
-    var place = places[i];
+  for (let i = 0; i < Math.min(places.length, placelimit); i++) {
+    let place = places[i];
 
     // handle animations for markers that are already placed
-    var animation = (openMarker && limit === 1) ? undefined : google.maps.Animation.DROP;
-    var opened = false;
-    if ( typeof(openMarker) === "string" ) {
+    let animation = (openMarker && limit === 1) ? undefined : google.maps.Animation.DROP;
+    let opened = false;
+    if ( typeof(openMarker) === 'string' ) {
       if (place.name === openMarker) {
         animation = undefined;
       }
-    } else if (typeof(openMarker) === "boolean") {
+    } else if (typeof(openMarker) === 'boolean') {
       opened = openMarker;
     }
 
-    var icon = (opened) ? makeMarkerIcon({'hoveredOver':true}) : makeMarkerIcon({})
-    var marker = new google.maps.Marker({
+    let icon = (opened) ? makeMarkerIcon({'hoveredOver':true}) : makeMarkerIcon({})
+    let marker = new google.maps.Marker({
       map: map,
       position: place.geometry.location,
       animation: animation,
@@ -319,7 +307,7 @@ function createMarkersForPlaces(places, limit, openMarker) {
     });
 
     markers.push(marker);
-    var placeInfoWindow = new google.maps.InfoWindow();
+    let placeInfoWindow = new google.maps.InfoWindow();
 
     // Event listeners for markers
 
@@ -345,24 +333,15 @@ function createMarkersForPlaces(places, limit, openMarker) {
     if (openMarker && limit === 1) {
       callFoursquareAndOpenMarker(marker, placeInfoWindow)
     }
-    // bounds.extend(place.geometry.location);
-    // if (place.geometry.viewport) {
-    //   // Only geocodes have viewport.
-    //   bounds.union(place.geometry.viewport);
-    // } else {
-    //   bounds.extend(place.geometry.location);
-    // }
   }
-
-  // map.fitBounds(bounds);
 }
 
 // Calling the Foursquare API for some extra information about the restaurants Likes
 function callFoursquareAndOpenMarker(place, infowindow) {
-  var dt = new Date();
+  let dt = new Date();
 
   // building the request URI for Foursquare
-  var foursquareURI = "https://api.foursquare.com/v2/venues/" + place.foursquare_id + "/likes?";
+  let foursquareURI = 'https://api.foursquare.com/v2/venues/' + place.foursquare_id + '/likes?';
   foursquareURI += $.param({
     client_id: foursquareClientID,
     client_secret: foursquareClientSecret,
@@ -371,15 +350,15 @@ function callFoursquareAndOpenMarker(place, infowindow) {
   // Calling the foursquare API
   $.getJSON( foursquareURI, function() {})
     .done(function (data) {
-      var likes = 0;
+      let likes = 0;
 
       if (data.response.likes) {
         likes = data.response.likes.count;
       }
 
       // make some aggregated data based on what gender is liking the place
-      var maleCount = 0;
-      var femaleCount = 0;
+      let maleCount = 0;
+      let femaleCount = 0;
       if (data.response.likes.items !== undefined && data.response.likes.items.length > 0) {
         data.response.likes.items.forEach(function (like) {
           if (like.gender === 'male') {
@@ -390,7 +369,7 @@ function callFoursquareAndOpenMarker(place, infowindow) {
         });
       }
 
-      var foursquareData = {
+      let foursquareData = {
         likesCount: likes,
         maleCount: maleCount,
         femaleCount: femaleCount
@@ -402,7 +381,8 @@ function callFoursquareAndOpenMarker(place, infowindow) {
   .fail(function (response) {
     // alert the user of the lack of data, and build the infowindows and display
     window.alert(
-      "We failed to receive some extra details about this place, and so we are just providing you the default."
+      'We failed to receive some extra details about this place, and so we ' +
+      'are just providing you the default.'
     );
     getPlacesDetails(place, infowindow);
   })
@@ -411,18 +391,17 @@ function callFoursquareAndOpenMarker(place, infowindow) {
 // This builds the info window and displays it
 // it includes a API call to Google's PlacesService
 function getPlacesDetails(marker, infowindow, foursquareData) {
-  var service = new google.maps.places.PlacesService(map);
-  // handle for using the static data from the observable
-  var id = (marker.id) ? marker.id : marker.place_id;
+  let service = new google.maps.places.PlacesService(map);
+  // request to google maps API
   service.getDetails({
-    placeId: id
+    placeId: marker.id
   }, function(place, status) {
     if (status === google.maps.places.PlacesServiceStatus.OK) {
       // Set the marker property on this infowindow so it isn't created again.
       infowindow.marker = marker;
 
       // building the infowindow's html
-      var innerHTML = '<div>';
+      let innerHTML = '<div>';
       if (place.name) {
         innerHTML += '<strong>' + place.name + '</strong>';
       }
@@ -436,8 +415,9 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
         innerHTML += '<br>Phone: ' + place.formatted_phone_number;
       }
       if (foursquareData) {
-        innerHTML += '<br><br>Likes: ' + foursquareData.likesCount;
-        var totalCount = foursquareData.maleCount + foursquareData.femaleCount;
+        innerHTML += '<br><br>Data from Foursquare:'
+        innerHTML += '<br>Likes: ' + foursquareData.likesCount;
+        let totalCount = foursquareData.maleCount + foursquareData.femaleCount;
         innerHTML += '<br>Pct Male Liked: ' + ((foursquareData.maleCount/totalCount)*100).toFixed(2) + '%';
         innerHTML += '<br>Pct Female Liked: ' + ((foursquareData.femaleCount/totalCount)*100).toFixed(2) + '%';
       }
@@ -452,11 +432,16 @@ function getPlacesDetails(marker, infowindow, foursquareData) {
         marker.opened = false;
         marker.setIcon(defaultIcon);
       });
+    } else {
+      window.alert(
+        "We've failed to contact Google Maps, please try again later or " +
+        "make sure that you are still connected to the internet"
+      );
     }
   });
 }
 function makeMarkerIcon(obj) {
-  var markerImage = (obj.hoveredOver) ? new google.maps.MarkerImage(
+  let markerImage = (obj.hoveredOver) ? new google.maps.MarkerImage(
     'https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png') :
     new google.maps.MarkerImage(
       'https://maps.gstatic.com/mapfiles/ms2/micons/red-dot.png')
