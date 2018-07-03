@@ -1,9 +1,6 @@
 let map;
 // Create a new blank array for all the listing markers.
 let markers = [];
-const yelpAccessToken = 'ma8Io2GDolGxcOxuBju5pfrMfrrS7SUJ1JaKC70_EexNP8EHcYoEdWUGrdcM_LUkdPnBFg4Xv2pcK3RIyNE9toXsQhHOVZLgLc_rzJqj1EtImeybGbrEo69FH34xW3Yx';
-const foursquareClientID = 'K5DB4HO5HMKVQGHMSURD54VGCDZZNYXIJYXE1WRHJ53H12BX';
-const foursquareClientSecret = 'BSFJKIIPID5IKQLNIQPRZAHLGDS54NLJXHMUGN0FCQCBH1GC';
 const initialPlaces = [
   {
     name: "Pizza Union",
